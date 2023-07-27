@@ -1,11 +1,11 @@
 const maria = require('mysql');
 
 const conn = maria.createConnection({
-    host: '',
+    host: '192.168.0.95',
     port : 3306,
-    user : '',
-    password: '',
-    database: ''
+    user : 'yeni2015',
+    password: 'yeni2015',
+    database: 'i++'
 });
 
 conn.connect;
