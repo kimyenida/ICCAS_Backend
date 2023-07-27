@@ -65,4 +65,53 @@ router.post('/login', async function(req, res){
   }
 });
 
+//건강정보 post
+router.post('/post/health', async function(req, res){
+  var hungry_time = req.body.Hungry_Time;
+  var walk = req.body.Walk;
+  var calorie = req.body.Calorie;
+  var water = req.body.Water_Intake;
+  var sleep = req.body.Sleep_Duration;
+
+  var id = req.body.User_ID;
+  var results = await maria.queryreturn(
+    `select * from health_data where User_ID='${id}' and Model_SN = 1;`)
+
+    if(results == 0){
+      var regquery = await maria.queryreturn(`insert into health_data(
+        Hungry_Time,Walk,Sleep_Duration,Water_Intake,Calorie,User_ID) 
+        values('${hungry_time}','${walk}','${sleep}','${water}','${calorie}','${id}')`)
+      res.send("건강정보가 입력되었습니다!")
+    } else{
+      var regquery = await maria.queryreturn(
+        `update health_data 
+        set Hungry_Time = '${hungry_time}',
+        Walk = '${walk}', 
+        Sleep_Duration = '${sleep}',
+        Water_Intake = '${water}',
+        Calorie = '${calorie}' 
+        where User_ID = '${id}' and Model_SN = 1;`)
+      res.send("건강정보가 업데이트 되었습니다.!")
+    }
+});
+
+
+//건강정보 get
+router.get('/get/healthdata', async function(req, res){
+  var id = req.body.User_ID;
+  var results = await maria.queryreturn(`select * from health_data where User_ID='${id}';`)
+    if(results == 0){
+      res.send("다시 시도해주세요!")
+    } else{
+      var hungry_time = results[0].Hungry_Time;
+      var walk = results[0].Walk;
+      var sleep = results[0].Sleep_Duration;
+      var water = results[0].Water_Intake
+      var calorie = results[0].Calorie;
+    res.send(`건강정보를 알려드립니다.\n'
+    + 공복시간 : ${hungry_time}', 걸음수 : '${walk}, 수면시간 : ${sleep}',
+     수분섭취량 : '${water}', 섭취칼로리 : '${calorie}'`)
+    }
+});
+
 module.exports = router;
