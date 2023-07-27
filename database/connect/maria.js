@@ -1,22 +1,24 @@
-const maria = require('mysql');
+const maria = require("mysql");
+
+require("dotenv").config();
 
 const conn = maria.createConnection({
-    host: '192.168.0.95',
-    port : 3306,
-    user : 'yeni2015',
-    password: 'yeni2015',
-    database: 'i++'
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  user: process.env.DB_USERNAME,
+  password: process.env.DB_PW,
+  database: process.env.DB_NAME,
 });
 
 conn.connect;
 
 const queryreturn = (query) => {
-    return new Promise(function(resolve,reject){
-        conn.query(String(query),function(error,results,fields){
-            if(error) throw error;
-            resolve(results); 
-        })
-    })
-}
+  return new Promise(function (resolve, reject) {
+    conn.query(String(query), function (error, results, fields) {
+      if (error) throw error;
+      resolve(results);
+    });
+  });
+};
 
-module.exports = {queryreturn};
+module.exports = { queryreturn };

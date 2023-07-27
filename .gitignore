@@ -131,3 +131,6 @@ dist
 
 #디비 연결 
 database/connect/maria.js
+
+#env
+.env
