@@ -130,4 +130,4 @@ dist
 .pnp.*
 
 #디비 연결 
-maria.js
+database/connect/maria.js
