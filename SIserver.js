@@ -5,8 +5,9 @@ const wss = new WebSocket.Server({ port: 8080 }, () => {
 
 wss.on("connection", (ws) => {
   ws.on("message", (data) => {
-    console.log("data received %o" + data);
-    ws.send(data);
+    console.log("데이터 : %o", data);
+    console.log("데이터 : %s", data);
+    ws.send(data.toString());
   });
 });
 
