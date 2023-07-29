@@ -1,7 +1,34 @@
 var express = require('express');
 var router = express.Router();
 
+const app = express();
+
 const maria = require('../database/connect/maria');
+
+// const {callChatGPT} = require('../chatgpt');
+// app.use(express.json())
+// app.use(express.urlencoded({extended:true}))
+
+const{Configuration, OpenAIApi} = require("openai");
+
+async function callChatGPT(prompt){
+    const configuration = new Configuration({
+        apiKey : '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',
+    });
+
+    try{
+        const openai = new OpenAIApi(configuration);
+
+        const response = await openai.createChatCompletion({
+            model : "gpt-3.5-turbo",
+            messages : [{role:"user", content:"Hello World"}],
+        });
+        return response.data.choices[0].message;
+    } catch(error){
+        console.error('error calling chatgpt api', error);
+        return null;
+    }
+}
 
 maria.queryreturn("show tables;").then(value=> {console.log(value)})
 
@@ -61,6 +88,7 @@ router.post('/login', async function(req, res){
     res.send("아이디 또는 비밀번호가 틀렸습니다")
   } else{
     var uid = results[0].User_ID;
+    //res.send(200).end();
     res.send(`로그인 성공! '${uid}'님 안녕하세요!`)
   }
 });
@@ -99,7 +127,7 @@ router.post('/post/health', async function(req, res){
 //건강정보 get
 router.get('/get/healthdata', async function(req, res){
   var id = req.body.User_ID;
-  var results = await maria.queryreturn(`select * from health_data where User_ID='${id}';`)
+  var results = await maria.queryreturn(`select * from health_data where User_ID='${id}' and Model_SN =1;`)
     if(results == 0){
       res.send("다시 시도해주세요!")
     } else{
@@ -113,5 +141,51 @@ router.get('/get/healthdata', async function(req, res){
      수분섭취량 : '${water}', 섭취칼로리 : '${calorie}'`)
     }
 });
+
+
+//팀 신청 api
+router.get('/get/recruit', async function(req,res){
+  var id = req.body.User_ID;
+  var end = 'end';
+  var results = await maria.queryreturn(`select * from team_info where User_ID='${id}';`)
+  var results_end = await maria.queryreturn(`select * from team_info where Team_ID='${end}';`)
+  if(results_end == 0){
+    if(results == 0){
+      var regquery = await maria.queryreturn(
+        `insert into team_info(User_ID) values('${id}');`)
+      res.send("팀 신청이 완료되었습니다!")
+    } else{
+      res.send("이미 신청하셨습니다.!")
+    }
+  }
+  else{
+    res.send("팀 모집기간이 아닙니다. 다음 팀 모집기간때 신청해주세요!")
+  }
+  
+});
+
+router.get('/ask',async function(req,res){
+  res.render('askgpt', {
+    pass:true
+  });
+});
+
+router.post('/ask', async(req,res) => {
+  const prompt = req.body.prompt;
+  const response = await callChatGPT(prompt);
+
+  if(response){
+    res.send(response);
+    //res.json({'response' : response});
+  } else{
+    res.status(500).json({'error':'fail......'});
+  }
+});
+
+
+
+
+
+
 
 module.exports = router;
