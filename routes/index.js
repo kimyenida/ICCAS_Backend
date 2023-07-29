@@ -26,7 +26,6 @@ router.post("/reg", async (req, res) => {
   var height = req.body.User_Height;
   var nickname = req.body.User_Nickname;
   var img = req.body.User_Img;
-  var pt = req.body.User_Pt;
 
   var idoverlap = await maria.queryreturn(
     `select * from user_info
@@ -36,11 +35,10 @@ router.post("/reg", async (req, res) => {
   if (idoverlap == 0) {
     var regquery = await maria.queryreturn(`insert into user_info(
       User_ID,User_PW,User_Phone,User_Name,User_Email,User_Age,
-      User_sex,User_BM,User_Weight,User_Height,User_Nickname,User_Img,
-      User_pt) 
+      User_sex,User_BM,User_Weight,User_Height,User_Nickname,User_Img) 
       values('${id}','${pwd}','${phone}','${name}','${email}',
       '${age}', '${sex}', '${bm}', '${weight}', '${height}',
-       '${nickname}', '${img}', '${pt}')`);
+       '${nickname}', '${img}')`);
     if (regquery == 0) {
       res.send("다시 시도해주세요!");
     } else {
