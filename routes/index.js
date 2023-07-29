@@ -72,9 +72,9 @@ router.post("/reg", async (req, res) => {
       '${age}', '${sex}', '${bm}', '${weight}', '${height}',
        '${nickname}', '${img}')`);
     if (regquery == 0) {
-      res.send("다시 시도해주세요!");
+      res.send("F"); //실패 하면 F
     } else {
-      res.send("회원가입 성공!");
+      res.send("T"); // 성공하면 T
     }
   } else {
     res.send("이미 등록된 계정이 있습니다.");
