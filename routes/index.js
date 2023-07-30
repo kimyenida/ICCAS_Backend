@@ -116,16 +116,22 @@ router.post("/post/health", async function (req, res) {
         values('${hungry_time}','${walk}','${sleep}','${water}','${calorie}','${id}')`);
     res.send("건강정보가 입력되었습니다!");
   } else {
-    var regquery = await maria.queryreturn(
-      `update health_data 
-        set Hungry_Time = '${hungry_time}',
-        Walk = '${walk}', 
-        Sleep_Duration = '${sleep}',
-        Water_Intake = '${water}',
-        Calorie = '${calorie}' 
-        where User_ID = '${id}' and Model_SN = 1;`
-    );
-    res.send("건강정보가 업데이트 되었습니다.!");
+    var report_results = await maria.queryreturn(`select * from health_reports where User_ID='${id}' and Report_unum = 1;`)
+    if(report_results == 0){
+      var regquery = await maria.queryreturn(
+        `update health_data 
+          set Hungry_Time = '${hungry_time}',
+          Walk = '${walk}', 
+          Sleep_Duration = '${sleep}',
+          Water_Intake = '${water}',
+          Calorie = '${calorie}' 
+          where User_ID = '${id}' and Model_SN = 1;`
+      );
+      res.send("건강정보가 업데이트 되었습니다.!");
+    } else{
+      res.send("건강정보 레포트를 받은 후에는 수정할 수 없습니다.");
+    }
+   
   }
 });
 
