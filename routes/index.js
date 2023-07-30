@@ -278,7 +278,7 @@ router.get("/ask/report", async (req, res) => {
       var scoo = get_results[0].Report_score;
       var time = get_results[0].Report_time;
       res.json({ response: coco, score: scoo, time: time });
-      //res.send("이미 건강정보 리포트를 발급하셨습니다!");
+      //res.send("이미 건강정보 리포트를 발급하셨습니다!")
     }
   }
 });
