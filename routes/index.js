@@ -138,7 +138,7 @@ router.post("/post/health", async function (req, res) {
 
 //건강정보 get
 router.get("/get/healthdata", async function (req, res) {
-  var id = req.body.User_ID;
+  var id = req.query.User_ID;
   var results = await maria.queryreturn(
     `select * from health_data where User_ID='${id}' and Model_SN =1;`
   );
@@ -150,15 +150,15 @@ router.get("/get/healthdata", async function (req, res) {
     var sleep = results[0].Sleep_Duration;
     var water = results[0].Water_Intake;
     var calorie = results[0].Calorie;
-    res.send(`건강정보를 알려드립니다.\n'
-    + 공복시간 : ${hungry_time}', 걸음수 : '${walk}, 수면시간 : ${sleep}',
+    res.send(`건강정보를 알려드립니다.\n
+    공복시간 : ${hungry_time}', 걸음수 : '${walk}, 수면시간 : ${sleep}',
      수분섭취량 : '${water}', 섭취칼로리 : '${calorie}'`);
   }
 });
 
 //팀 신청 api
 router.get("/get/recruit", async function (req, res) {
-  var id = req.body.User_ID;
+  var id = req.query.User_ID;
   var end = "end";
   var results = await maria.queryreturn(
     `select * from team_info where User_ID='${id}';`
