@@ -216,12 +216,11 @@ const targets = {
 };
 
 
-
 router.get('/ask/report', async(req,res) => {
-  var id = req.body.User_ID;
+  var id = req.query.User_ID;
   var results = await maria.queryreturn(`select * from health_data where User_ID='${id}' and Model_SN =1;`)
   if(results == 0){
-    res.send("오늘 저장한 건강정보가 없습니다!")
+    res.send("오늘 저장한 건강정보가 없습니다!"+id);
   } else{
     var hungry_time = results[0].Hungry_Time;
     var walk = results[0].Walk;
@@ -272,16 +271,10 @@ router.get('/ask/report', async(req,res) => {
       var coco =  get_results[0].Report_gpt;
       var scoo = get_results[0].Report_score;
       var time = get_results[0].Report_time;
-      res.json({'response' : coco, 'score' : healthScore.toFixed(0)});
-      res.send("이미 건강정보 리포트를 발급하셨습니다!")
-    }
-
-    
+      res.json({'response' : coco, 'score' : scoo, "time" : time});
+      //res.send("이미 건강정보 리포트를 발급하셨습니다!")
+    }   
 }
-
-
-
-
 })
 
 
