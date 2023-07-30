@@ -268,6 +268,11 @@ router.get('/ask/report', async(req,res) => {
         res.status(500).json({'error':'fail......'});
       }
     }else{
+      var get_results = await maria.queryreturn(`select * from health_reports where User_ID='${id}';`)
+      var coco =  get_results[0].Report_gpt;
+      var scoo = get_results[0].Report_score;
+      var time = get_results[0].Report_time;
+      res.json({'response' : coco, 'score' : healthScore.toFixed(0)});
       res.send("이미 건강정보 리포트를 발급하셨습니다!")
     }
 
