@@ -3,18 +3,18 @@ var router = express.Router();
 
 const app = express();
 
-const maria = require('../database/connect/maria');
+const maria = require("../database/connect/maria");
 
 // const {callChatGPT} = require('../chatgpt');
 // app.use(express.json())
 // app.use(express.urlencoded({extended:true}))
 
-const{Configuration, OpenAIApi} = require("openai");
+const { Configuration, OpenAIApi } = require("openai");
 
-async function callChatGPT(prompt){
-    const configuration = new Configuration({
-        apiKey : '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',
-    });
+async function callChatGPT(prompt) {
+  const configuration = new Configuration({
+    apiKey: "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",
+  });
 
     try{
         const openai = new OpenAIApi(configuration);
@@ -30,12 +30,13 @@ async function callChatGPT(prompt){
     }
 }
 
-maria.queryreturn("show tables;").then(value=> {console.log(value)})
+maria.queryreturn("show tables;").then((value) => {
+  console.log(value);
+});
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
-
+router.get("/", function (req, res, next) {
+  res.render("index", { title: "Express" });
 });
 
 /* GET home page. */
@@ -71,9 +72,9 @@ router.post("/reg", async (req, res) => {
       '${age}', '${sex}', '${bm}', '${weight}', '${height}',
        '${nickname}', '${img}')`);
     if (regquery == 0) {
-      res.send("다시 시도해주세요!");
+      res.send("F"); //실패 하면 F
     } else {
-      res.send("회원가입 성공!");
+      res.send("T"); // 성공하면 T
     }
   } else {
     res.send("이미 등록된 계정이 있습니다.");
@@ -88,11 +89,11 @@ router.post("/login", async function (req, res) {
     `select * from user_info where User_ID = '${id}' and User_PW = '${pwd}';`
   );
   if (results == 0) {
-    res.send("아이디 또는 비밀번호가 틀렸습니다");
+    res.send("F");
   } else {
-    var uid = results[0].User_ID;
+    //var uid = results[0].User_ID;
     //res.send(200).end();
-    res.send(`로그인 성공! '${uid}'님 안녕하세요!`)
+    res.send(`T`);
   }
 });
 
@@ -131,58 +132,62 @@ router.post("/post/health", async function (req, res) {
 //건강정보 get
 router.get("/get/healthdata", async function (req, res) {
   var id = req.body.User_ID;
-  var results = await maria.queryreturn(`select * from health_data where User_ID='${id}' and Model_SN =1;`)
-    if(results == 0){
-      res.send("다시 시도해주세요!")
-    } else{
-      var hungry_time = results[0].Hungry_Time;
-      var walk = results[0].Walk;
-      var sleep = results[0].Sleep_Duration;
-      var water = results[0].Water_Intake
-      var calorie = results[0].Calorie;
+  var results = await maria.queryreturn(
+    `select * from health_data where User_ID='${id}' and Model_SN =1;`
+  );
+  if (results == 0) {
+    res.send("다시 시도해주세요!");
+  } else {
+    var hungry_time = results[0].Hungry_Time;
+    var walk = results[0].Walk;
+    var sleep = results[0].Sleep_Duration;
+    var water = results[0].Water_Intake;
+    var calorie = results[0].Calorie;
     res.send(`건강정보를 알려드립니다.\n'
     + 공복시간 : ${hungry_time}', 걸음수 : '${walk}, 수면시간 : ${sleep}',
      수분섭취량 : '${water}', 섭취칼로리 : '${calorie}'`);
   }
 });
 
-
 //팀 신청 api
-router.get('/get/recruit', async function(req,res){
+router.get("/get/recruit", async function (req, res) {
   var id = req.body.User_ID;
-  var end = 'end';
-  var results = await maria.queryreturn(`select * from team_info where User_ID='${id}';`)
-  var results_end = await maria.queryreturn(`select * from team_info where Team_ID='${end}';`)
-  if(results_end == 0){
-    if(results == 0){
+  var end = "end";
+  var results = await maria.queryreturn(
+    `select * from team_info where User_ID='${id}';`
+  );
+  var results_end = await maria.queryreturn(
+    `select * from team_info where Team_ID='${end}';`
+  );
+  if (results_end == 0) {
+    if (results == 0) {
       var regquery = await maria.queryreturn(
-        `insert into team_info(User_ID) values('${id}');`)
-      res.send("팀 신청이 완료되었습니다!")
-    } else{
-      res.send("이미 신청하셨습니다.!")
+        `insert into team_info(User_ID) values('${id}');`
+      );
+      res.send("팀 신청이 완료되었습니다!");
+    } else {
+      res.send("이미 신청하셨습니다.!");
     }
+  } else {
+    res.send("팀 모집기간이 아닙니다. 다음 팀 모집기간때 신청해주세요!");
   }
-  else{
-    res.send("팀 모집기간이 아닙니다. 다음 팀 모집기간때 신청해주세요!")
-  }
-  
 });
 
-router.get('/ask',async function(req,res){
-  res.render('askgpt', {
-    pass:true
+router.get("/ask", async function (req, res) {
+  res.render("askgpt", {
+    pass: true,
   });
 });
 
-router.post('/ask', async(req,res) => {
+router.post("/ask", async (req, res) => {
   const prompt = req.body.prompt;
   const response = await callChatGPT(prompt);
 
-  if(response){
+  if (response) {
     res.send(response);
     //res.json({'response' : response});
-  } else{
-    res.status(500).json({'error':'fail......'});
+  } else {
+    res.status(500).json({ error: "fail......" });
   }
 });
 
