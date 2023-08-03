@@ -14,18 +14,18 @@ async function callChatGPT(prompt) {
     apiKey: process.env.OPEN_API_KEY,
   });
 
-    try{
-        const openai = new OpenAIApi(configuration);
+  try {
+    const openai = new OpenAIApi(configuration);
 
-        const response = await openai.createChatCompletion({
-            model : "gpt-3.5-turbo",
-            messages : [{role:"user", content:`${prompt}`}],
-        });
-        return response.data.choices[0].message;
-    } catch(error){
-        console.error('error calling chatgpt api', error);
-        return null;
-    }
+    const response = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "user", content: `${prompt}` }],
+    });
+    return response.data.choices[0].message;
+  } catch (error) {
+    console.error("error calling chatgpt api", error);
+    return null;
+  }
 }
 
 maria.queryreturn("show tables;").then((value) => {
@@ -114,8 +114,10 @@ router.post("/post/health", async function (req, res) {
         values('${hungry_time}','${walk}','${sleep}','${water}','${calorie}','${id}')`);
     res.send("건강정보가 입력되었습니다!");
   } else {
-    var report_results = await maria.queryreturn(`select * from health_reports where User_ID='${id}' and Report_unum = 1;`)
-    if(report_results == 0){
+    var report_results = await maria.queryreturn(
+      `select * from health_reports where User_ID='${id}' and Report_unum = 1;`
+    );
+    if (report_results == 0) {
       var regquery = await maria.queryreturn(
         `update health_data 
           set Hungry_Time = '${hungry_time}',
@@ -126,10 +128,9 @@ router.post("/post/health", async function (req, res) {
           where User_ID = '${id}' and Model_SN = 1;`
       );
       res.send("건강정보가 업데이트 되었습니다.!");
-    } else{
+    } else {
       res.send("건강정보 레포트를 받은 후에는 수정할 수 없습니다.");
     }
-   
   }
 });
 
@@ -195,14 +196,13 @@ router.post("/ask", async (req, res) => {
   }
 });
 
-
 // 가중치 설정
 const weights = {
   hungry_time: 10,
   sleep_time: 10,
   calorie_intake: 40,
   steps: 30,
-  water_intake: 10
+  water_intake: 10,
 };
 
 const targets = {
@@ -210,20 +210,21 @@ const targets = {
   sleep_time: 8,
   calorie_intake: 1500,
   steps: 6000,
-  water_intake: 2
+  water_intake: 2,
 };
 
-
-router.get('/ask/report', async(req,res) => {
-  var id = req.query.User_ID;
-  var results = await maria.queryreturn(`select * from health_data where User_ID='${id}' and Model_SN =1;`)
-  if(results == 0){
-    res.send("오늘 저장한 건강정보가 없습니다!"+id);
-  } else{
+router.get("/ask/report", async (req, res) => {
+  var id = req.query.User_ID; // get에서 body 사용 못함 따라서 serverURL + "?User_ID=" + userId +"&"+"DATE" + parameter
+  var results = await maria.queryreturn(
+    `select * from health_data where User_ID='${id}' and Model_SN =1;`
+  );
+  if (results == 0) {
+    res.send("오늘 저장한 건강정보가 없습니다!");
+  } else {
     var hungry_time = results[0].Hungry_Time;
     var walk = results[0].Walk;
     var sleep = results[0].Sleep_Duration;
-    var water = results[0].Water_Intake
+    var water = results[0].Water_Intake;
     var calorie = results[0].Calorie;
 
     const healthData = {
@@ -231,7 +232,7 @@ router.get('/ask/report', async(req,res) => {
       sleep_time: sleep,
       calorie_intake: calorie,
       steps: walk,
-      water_intake: water
+      water_intake: water,
     };
     // 각 요소에 가중치를 곱하여 점수 계산
     let healthScore = 0;
@@ -245,34 +246,40 @@ router.get('/ask/report', async(req,res) => {
     //   healthScore = 100;
     // }
     healthScore = Math.min(100, healthScore);
-    console.log(healthScore+"after");
+    console.log(healthScore + "after");
 
     var propmt_sentence = `
     '${id}'의 하루 건강목표는 물2L, 공복시간16시간이상, 6000보 이상걷기, 7시간 이상 8시간 이하 수면, 1500칼로리 섭취입니다. 
     이 사람의 오늘 공복시간은 '${hungry_time}'시간이고, 걸음수는 '${walk}'걸음이고, 수면시간은 '${sleep}'시간이고, 물 섭취량은 '${water}'L이고,
-    오늘 '${calorie}'칼로리를 먹었습니다.이 사람의 건강리포트를 600자 이내로 써주요`
+    오늘 '${calorie}'칼로리를 먹었습니다.이 사람의 건강리포트를 600자 이내로 써주요`;
 
     const response = await callChatGPT(propmt_sentence);
     const response_s = response.content;
-    var results = await maria.queryreturn(`select * from health_reports where User_ID='${id}' and Report_unum = 1;`)
-    if(results == 0){
-      if(response){
+    var results = await maria.queryreturn(
+      `select * from health_reports where User_ID='${id}' and Report_unum = 1;`
+    );
+    if (results == 0) {
+      if (response) {
         var regquery = await maria.queryreturn(
-          `insert into health_reports(User_ID, Report_gpt, Report_score) values('${id}','${response_s}','${healthScore}');`)
+          `insert into health_reports(User_ID, Report_gpt, Report_score) values('${id}','${response_s}','${healthScore}');`
+        );
         //res.send(response_s+"\n"+healthScore);
-        res.json({'response' : response_s, 'score' : healthScore.toFixed(0)});
-      } else{
-        res.status(500).json({'error':'fail......'});
+        res.json({ response: response_s, score: healthScore.toFixed(0) });
+      } else {
+        res.status(500).json({ error: "fail......" });
       }
-    }else{
-      var get_results = await maria.queryreturn(`select * from health_reports where User_ID='${id}';`)
-      var coco =  get_results[0].Report_gpt;
+    } else {
+      var get_results = await maria.queryreturn(
+        `select * from health_reports where User_ID='${id}';`
+      );
+      var coco = get_results[0].Report_gpt;
       var scoo = get_results[0].Report_score;
       var time = get_results[0].Report_time;
-      res.json({'response' : coco, 'score' : scoo, "time" : time});
+      res.json({ response: coco, score: scoo, time: time });
       //res.send("이미 건강정보 리포트를 발급하셨습니다!")
-    }   
-}
-})
+
+    }
+  }
+});
 
 module.exports = router;
