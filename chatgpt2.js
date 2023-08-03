@@ -2,7 +2,7 @@
 
 // const configiration = new Configuration({
 //     organization: 'org-0uaQLaArF3m5pgctUePtq5OR',
-//     apiKey: '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',
+//     apiKey: '',
 // });
 
 
@@ -34,39 +34,40 @@
 
 // runGPT35("너 이름이 뭐야");
 
-const healthData = {
-  hungry_time: 7,
-  sleep_time: 8,
-  calorie_intake: 100,
-  steps: 6000,
-  water_intake: 0.5
-};
+// const healthData = {
+//   hungry_time: 7,
+//   sleep_time: 8,
+//   calorie_intake: 100,
+//   steps: 6000,
+//   water_intake: 0.5
+// };
 
-// 가중치 설정
-const weights = {
-  hungry_time: 10,
-  sleep_time: 10,
-  calorie_intake: 40,
-  steps: 30,
-  water_intake: 10
-};
+// // 가중치 설정
+// const weights = {
+//   hungry_time: 10,
+//   sleep_time: 10,
+//   calorie_intake: 40,
+//   steps: 30,
+//   water_intake: 10
+// };
 
-const targets = {
-  hungry_time: 16,
-  sleep_time: 8,
-  calorie_intake: 1500,
-  steps: 6000,
-  water_intake: 2
-};
+// const targets = {
+//   hungry_time: 16,
+//   sleep_time: 8,
+//   calorie_intake: 1500,
+//   steps: 6000,
+//   water_intake: 2
+// };
 
 
-// 각 요소에 가중치를 곱하여 점수 계산
-let healthScore = 0;
-for (const key in healthData) {
-  healthScore += (healthData[key] / targets[key]) * weights[key];
-}
+// // 각 요소에 가중치를 곱하여 점수 계산
+// let healthScore = 0;
+// for (const key in healthData) {
+//   healthScore += (healthData[key] / targets[key]) * weights[key];
+// }
 
-// 100점 만점으로 스케일링
-healthScore = Math.min(100, healthScore);
+// // 100점 만점으로 스케일링
+// healthScore = Math.min(100, healthScore);
 
-console.log(`건강점수: ${healthScore.toFixed(2)}`);
+// console.log(`건강점수: ${healthScore.toFixed(2)}`);
+

@@ -2,18 +2,16 @@ var express = require("express");
 var router = express.Router();
 
 const app = express();
+require("dotenv").config();
 
 const maria = require("../database/connect/maria");
 
-// const {callChatGPT} = require('../chatgpt');
-// app.use(express.json())
-// app.use(express.urlencoded({extended:true}))
 
 const { Configuration, OpenAIApi } = require("openai");
 
 async function callChatGPT(prompt) {
   const configuration = new Configuration({
-    apiKey: "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",
+    apiKey: process.env.OPEN_API_KEY,
   });
 
     try{
@@ -276,6 +274,5 @@ router.get('/ask/report', async(req,res) => {
     }   
 }
 })
-
 
 module.exports = router;
